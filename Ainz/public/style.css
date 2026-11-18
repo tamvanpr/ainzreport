@@ -1,0 +1,349 @@
+/* ===== Tokens ===== */
+:root {
+  /* Light theme values */
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-text: #17202b;
+  --color-muted: #5a6675;
+  --color-accent: #1f6feb;
+  --color-accent-text: #ffffff;
+  --color-danger: #d13438;
+  --color-danger-text: #ffffff;
+  --color-warning-bg: #fff3cd;
+  --color-warning-text: #5c4400;
+  --color-warning-border: #f0d264;
+  --color-success-bg: #e7f6e8;
+  --color-success-text: #1f6b2d;
+  --color-error-bg: #fde8e8;
+  --color-error-text: #9d1d1d;
+  --color-border: #d5dbe3;
+
+  /* Semantic tokens */
+  --surface: var(--color-bg);
+  --card: var(--color-surface);
+  --text: var(--color-text);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --accent-text: var(--color-accent-text);
+  --danger: var(--color-danger);
+  --danger-text: var(--color-danger-text);
+  --warning-bg: var(--color-warning-bg);
+  --warning-text: var(--color-warning-text);
+  --warning-border: var(--color-warning-border);
+  --success-bg: var(--color-success-bg);
+  --success-text: var(--color-success-text);
+  --error-bg: var(--color-error-bg);
+  --error-text: var(--color-error-text);
+  --border: var(--color-border);
+
+  color-scheme: light dark;
+  accent-color: var(--color-accent);
+}
+
+/* Fallback untuk browser tanpa light-dark() */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #10141a;
+    --color-surface: #1a2029;
+    --color-text: #e8edf3;
+    --color-muted: #9aa5b1;
+    --color-accent: #4c9aff;
+    --color-accent-text: #06121f;
+    --color-danger: #f66;
+    --color-danger-text: #2a0002;
+    --color-warning-bg: #3a2f00;
+    --color-warning-text: #f2d870;
+    --color-warning-border: #8a6d00;
+    --color-success-bg: #0f3320;
+    --color-success-text: #8fe0a0;
+    --color-error-bg: #3a1214;
+    --color-error-text: #ffb3b3;
+    --color-border: #37414e;
+  }
+}
+
+/* Modernisasi: light-dark() saat didukung (menimpa media query di atas) */
+@supports (color: light-dark(white, black)) {
+  :root {
+    --color-bg: light-dark(#f6f7f9, #10141a);
+    --color-surface: light-dark(#ffffff, #1a2029);
+    --color-text: light-dark(#17202b, #e8edf3);
+    --color-muted: light-dark(#5a6675, #9aa5b1);
+    --color-accent: light-dark(#1f6feb, #4c9aff);
+    --color-accent-text: light-dark(#ffffff, #06121f);
+    --color-danger: light-dark(#d13438, #f66);
+    --color-danger-text: light-dark(#ffffff, #2a0002);
+    --color-warning-bg: light-dark(#fff3cd, #3a2f00);
+    --color-warning-text: light-dark(#5c4400, #f2d870);
+    --color-warning-border: light-dark(#f0d264, #8a6d00);
+    --color-success-bg: light-dark(#e7f6e8, #0f3320);
+    --color-success-text: light-dark(#1f6b2d, #8fe0a0);
+    --color-error-bg: light-dark(#fde8e8, #3a1214);
+    --color-error-text: light-dark(#9d1d1d, #ffb3b3);
+    --color-border: light-dark(#d5dbe3, #37414e);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 46rem;
+  margin-inline: auto;
+  padding: 1rem 1rem 4rem;
+}
+
+/* ===== Header ===== */
+.header h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+.subtitle { margin: 0; color: var(--muted); }
+.link-subtle {
+  display: inline-block;
+  margin-top: .5rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: .95rem;
+}
+.link-subtle:hover { text-decoration: underline; }
+
+/* ===== Banner peringatan ===== */
+.banner {
+  margin: 1rem 0;
+  padding: .9rem 1rem;
+  border: 2px solid var(--warning-border);
+  border-radius: .5rem;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  font-size: 1rem;
+}
+
+/* ===== Cards & form ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  padding: 1rem;
+  margin-block: 1rem;
+}
+
+.field { display: flex; flex-direction: column; gap: .35rem; margin-block-end: 1rem; }
+.field label { font-weight: 600; }
+.hint-inline { font-weight: 400; color: var(--muted); font-size: .9rem; }
+
+input, select {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  padding: .7rem .8rem;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: var(--card);
+  color: var(--text);
+}
+input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+input:user-invalid { border-color: var(--color-danger, #d13438); }
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .75rem;
+  margin: 0 0 1rem;
+}
+legend { font-weight: 600; padding-inline: .4rem; }
+
+.task-group { display: flex; flex-direction: column; gap: .25rem; }
+.task-group .task-group-label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-block-start: .4rem;
+}
+.task-option {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  min-height: 44px;
+  padding: .35rem .5rem;
+  border-radius: .4rem;
+}
+.task-option:hover { background: var(--warning-bg); }
+.task-option input { width: 1.25rem; height: 1.25rem; accent-color: var(--accent); }
+.task-option span { flex: 1; }
+
+.empty-note { color: var(--muted); margin: .5rem 0; }
+
+/* ===== Tombol ===== */
+.btn {
+  display: inline-block;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: .7rem 1.2rem;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { filter: brightness(.95); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: var(--danger-text); }
+.btn-danger:hover:not(:disabled) { filter: brightness(1.08); }
+.btn-sm { font-size: .9rem; padding: .35rem .7rem; min-height: 36px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.w-full { display: block; width: 100%; text-align: center; }
+
+/* ===== Riwayat ===== */
+.riwayat-card h2 { font-size: 1.1rem; }
+#riwayat-list { list-style: none; margin: 0; padding: 0; }
+#riwayat-list li {
+  padding: .55rem .25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+#riwayat-list li:last-child { border-bottom: none; }
+.riwayat-ch { font-weight: 600; }
+.riwayat-meta { color: var(--muted); font-size: .9rem; text-align: right; }
+
+/* ===== Dialog ===== */
+dialog {
+  border: none;
+  border-radius: .75rem;
+  padding: 1.25rem;
+  max-width: 26rem;
+  width: calc(100% - 2rem);
+  background: var(--card);
+  color: var(--text);
+}
+dialog::backdrop { background: rgb(0 0 0 / .5); }
+dialog h2 { font-size: 1.2rem; margin-top: 0; }
+dialog .hint { color: var(--muted); font-size: .95rem; }
+
+.ringkasan { margin: 1rem 0; }
+.ringkasan dt { font-weight: 600; font-size: .85rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.ringkasan dd { margin: 0 0 .6rem; }
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .6rem;
+  margin-top: 1.25rem;
+}
+
+/* ===== Flash / pesan ===== */
+.flash:empty { display: none; }
+.flash {
+  margin-block: 1rem;
+  padding: .8rem 1rem;
+  border-radius: .5rem;
+  font-weight: 500;
+}
+.flash.is-success { background: var(--success-bg); color: var(--success-text); }
+.flash.is-error { background: var(--error-bg); color: var(--error-text); }
+
+/* ===== Toolbar & tabs ===== */
+.toolbar { display: flex; justify-content: flex-end; margin-block: .5rem; }
+
+.tabs {
+  display: flex;
+  gap: .25rem;
+  border-bottom: 2px solid var(--border);
+  margin-block: 1rem;
+}
+.tab {
+  font: inherit;
+  font-weight: 600;
+  padding: .6rem 1rem;
+  min-height: 44px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+.tab:hover { color: var(--text); }
+.tab.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { margin-top: 1rem; }
+
+/* ===== Filters ===== */
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem 1rem; align-items: end; }
+.filters .field { margin-block-end: 0; }
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  grid-column: 1 / -1;
+}
+
+/* ===== Tabel ===== */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+}
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { padding: .6rem .7rem; text-align: start; border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--card); font-weight: 600; }
+tbody tr:last-child td { border-bottom: none; }
+
+/* Tabel rekap: total baris disorot */
+#rekap-bulanan .row-total { font-weight: 700; }
+#rekap-bulanan tfoot td { border-top: 2px solid var(--border); font-weight: 700; }
+
+/* ===== Tabel data master ===== */
+#tabel-staff td, #tabel-title td, #tabel-task td { display: flex; align-items: center; gap: .5rem; }
+.master-row .grow { flex: 1; }
+/* Lebar input tugas di tabel admin (menggantikan inline style) */
+#tabel-task input.task-name { width: 60%; }
+#tabel-task input.task-group { width: 40%; display: block; }
+.badge { font-size: .8rem; padding: .15rem .5rem; border-radius: 1rem; font-weight: 600; }
+.badge.active { background: var(--success-bg); color: var(--success-text); }
+.badge.inactive { background: var(--error-bg); color: var(--error-text); }
+.row-actions { display: flex; gap: .35rem; flex-wrap: wrap; }
+
+/* ===== Inline field & task add row ===== */
+.inline-field { display: flex; gap: .5rem; }
+.inline-field input { flex: 1; min-width: 0; }
+.task-add-row { display: flex; gap: .5rem; margin-block-end: .5rem; }
+.task-add-row input { flex: 1; min-width: 0; }
+
+details summary { cursor: pointer; font-size: 1.05rem; }
+details[open] summary { margin-block-end: .75rem; }
+
+/* ===== Utilitas ===== */
+.visually-hidden {
+  position: absolute;
+  clip-path: inset(50%);
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+
+/* ===== Scroll containment saat dialog modal terbuka ===== */
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}

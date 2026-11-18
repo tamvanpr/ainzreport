@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Admin · Setoran Staff</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <h1>Admin</h1>
+      <p class="subtitle">Kelola data dan rekap setoran</p>
+      <a class="link-subtle" href="/">Kembali ke halaman setoran</a>
+    </header>
+
+    <!-- Tampilan saat belum login -->
+    <section id="login-card" class="card">
+      <h2>Masuk</h2>
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="password">Kata sandi admin</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-login">Masuk</button>
+      </form>
+    </section>
+
+    <!-- Tampilan setelah login -->
+    <section id="admin-area" hidden>
+      <div class="toolbar">
+        <button type="button" class="btn" id="btn-logout">Keluar</button>
+      </div>
+
+      <nav class="tabs" role="tablist">
+        <button type="button" class="tab is-active" role="tab" data-tab="setoran" aria-selected="true">Setoran</button>
+        <button type="button" class="tab" role="tab" data-tab="rekap" aria-selected="false">Rekap</button>
+        <button type="button" class="tab" role="tab" data-tab="data" aria-selected="false">Data</button>
+      </nav>
+
+      <!-- Tab: Setoran -->
+      <section id="tab-setoran" role="tabpanel" class="tab-panel">
+        <h2>Daftar setoran</h2>
+
+        <details class="card">
+          <summary><strong>Tambah setoran</strong></summary>
+          <form id="form-setoran" autocomplete="off">
+            <div class="field">
+              <label for="s-staff">Staff</label>
+              <select id="s-staff" name="staff_id" required></select>
+            </div>
+            <div class="field">
+              <label for="s-title">Judul</label>
+              <select id="s-title" name="title_id" required></select>
+            </div>
+            <div class="field">
+              <label for="s-chapter">Chapter</label>
+              <input id="s-chapter" name="chapter" type="text" inputmode="decimal" maxlength="20"
+                     autocorrect="off" autocapitalize="none" spellcheck="false" required>
+            </div>
+            <div class="field">
+              <label for="s-task">Tugas</label>
+              <select id="s-task" name="task_type_id" required></select>
+            </div>
+            <button type="submit" class="btn btn-primary">Simpan setoran</button>
+          </form>
+        </details>
+
+        <div class="filters card">
+          <div class="field">
+            <label for="f-bulan">Bulan</label>
+            <input id="f-bulan" type="month">
+          </div>
+          <div class="field">
+            <label for="f-staff">Staff</label>
+            <select id="f-staff"><option value="">Semua staff</option></select>
+          </div>
+          <div class="field">
+            <label for="f-title">Judul</label>
+            <select id="f-title"><option value="">Semua judul</option></select>
+          </div>
+          <div class="field">
+            <label for="f-task">Tugas</label>
+            <select id="f-task"><option value="">Semua tugas</option></select>
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn btn-primary" id="btn-apply-filter">Terapkan</button>
+            <button type="button" class="btn" id="btn-reset-filter">Reset</button>
+            <button type="button" class="btn" id="btn-export-setoran">Ekspor CSV</button>
+          </div>
+        </div>
+
+        <div class="table-wrap card">
+          <table id="tabel-setoran">
+            <caption class="visually-hidden">Daftar setoran</caption>
+            <thead>
+              <tr>
+                <th>Tgl</th><th>Staff</th><th>Judul</th><th>Ch.</th><th>Tugas</th><th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab: Rekap -->
+      <section id="tab-rekap" role="tabpanel" class="tab-panel" hidden>
+        <h2>Rekap bulanan</h2>
+        <div class="filters card">
+          <div class="field">
+            <label for="r-bulan">Bulan</label>
+            <input id="r-bulan" type="month">
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn btn-primary" id="btn-terapkan-rekap">Terapkan</button>
+            <button type="button" class="btn" id="btn-export-rekap">Ekspor CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap card" id="rekap-bulanan-wrap" hidden>
+          <table id="rekap-bulanan">
+            <caption class="visually-hidden">Rekap bulanan</caption>
+          </table>
+        </div>
+
+        <h2>Rekap per staff</h2>
+        <div class="filters card">
+          <div class="field">
+            <label for="ps-staff">Staff</label>
+            <select id="ps-staff" required></select>
+          </div>
+          <div class="field">
+            <label for="ps-bulan">Bulan</label>
+            <input id="ps-bulan" type="month">
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn btn-primary" id="btn-terapkan-perstaff">Terapkan</button>
+            <button type="button" class="btn" id="btn-export-perstaff">Ekspor CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap card" id="rekap-perstaff-wrap" hidden>
+          <table id="rekap-perstaff">
+            <caption class="visually-hidden">Rekap per staff</caption>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab: Data -->
+      <section id="tab-data" role="tabpanel" class="tab-panel" hidden>
+        <div class="card">
+          <h2>Staff</h2>
+          <form id="form-staff">
+            <div class="inline-field">
+              <input id="staff-nama" type="text" maxlength="50" required autocapitalize="none" placeholder="Nama staff baru">
+              <button type="submit" class="btn btn-primary">Tambah staff</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table id="tabel-staff">
+              <caption class="visually-hidden">Daftar staff</caption>
+              <thead><tr><th>Nama</th><th>Status</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Judul</h2>
+          <form id="form-title">
+            <div class="inline-field">
+              <input id="title-nama" type="text" maxlength="80" required autocapitalize="none" placeholder="Judul baru">
+              <button type="submit" class="btn btn-primary">Tambah judul</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table id="tabel-title">
+              <caption class="visually-hidden">Daftar judul</caption>
+              <thead><tr><th>Nama</th><th>Status</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Tugas / PJ</h2>
+          <form id="form-task">
+            <div class="task-add-row">
+              <input id="task-nama" type="text" maxlength="30" required autocapitalize="none" placeholder="Nama tugas (mis. TL)">
+              <input id="task-grup" type="text" maxlength="20" autocapitalize="none" placeholder="Grup (mis. TL), boleh kosong">
+            </div>
+            <div class="task-add-row">
+              <input id="task-urutan" type="number" min="0" max="99" placeholder="Urutan (opsional)" inputmode="numeric">
+              <button type="submit" class="btn btn-primary">Tambah tugas</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table id="tabel-task">
+              <caption class="visually-hidden">Daftar tugas</caption>
+              <thead><tr><th>Nama</th><th>Grup</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <div id="flash" class="flash" role="status" aria-live="polite"></div>
+  </main>
+
+  <dialog id="dialog-edit-setoran" aria-labelledby="des-title">
+    <h2 id="des-title">Edit setoran</h2>
+    <form id="form-edit-setoran">
+      <input type="hidden" id="es-id">
+      <div class="field">
+        <label for="es-staff">Staff</label>
+        <select id="es-staff" required></select>
+      </div>
+      <div class="field">
+        <label for="es-title">Judul</label>
+        <select id="es-title" required></select>
+      </div>
+      <div class="field">
+        <label for="es-chapter">Chapter</label>
+        <input id="es-chapter" type="text" inputmode="decimal" maxlength="20"
+               autocorrect="off" autocapitalize="none" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="es-task">Tugas</label>
+        <select id="es-task" required></select>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn" data-close="dialog-edit-setoran">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/admin.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Setoran Staff</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <h1>Setoran Staff</h1>
+      <p class="subtitle">Catat setoran kerja tim scanlation</p>
+      <a class="link-subtle" href="/admin">Halaman admin</a>
+    </header>
+
+    <div class="banner" role="alert">
+      <strong>Penting:</strong> Selalu pakai nickname yang sama. Periksa kembali data sebelum menekan Konfirmasi.
+    </div>
+
+    <form id="form" aria-labelledby="form-title" autocomplete="off">
+      <h2 id="form-title" class="visually-hidden">Form setoran</h2>
+
+      <div class="field">
+        <label for="nickname">Nickname</label>
+        <select id="nickname" name="nickname" required>
+          <option value="" selected>Pilih nickname…</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="judul">Judul</label>
+        <select id="judul" name="judul" required>
+          <option value="" selected>Pilih judul…</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="chapter">Chapter <span class="hint-inline">(mis. 12.5)</span></label>
+        <input id="chapter" name="chapter" type="text" inputmode="decimal"
+               pattern="^[\d.]+$" maxlength="20" required
+               autocorrect="off" autocapitalize="none" spellcheck="false"
+               placeholder="Contoh: 12 atau 12.5">
+      </div>
+
+      <div class="field">
+        <label for="tugas">Tugas</label>
+        <select id="tugas" name="tugas" required>
+          <option value="" selected>Pilih tugas…</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="btn-lanjut">Lanjutkan</button>
+    </form>
+
+    <section class="riwayat-card" id="riwayat-card" hidden>
+      <h2 id="riwayat-heading">Riwayat 20 setoran terakhir</h2>
+      <ul id="riwayat-list"></ul>
+    </section>
+
+    <div id="flash" class="flash" role="status" aria-live="polite"></div>
+  </main>
+
+  <dialog id="konfirmasi" aria-labelledby="konfirmasi-title">
+    <h2 id="konfirmasi-title">Konfirmasi setoran</h2>
+    <p class="hint">Periksa kembali data di bawah sebelum menekan Konfirmasi.</p>
+    <dl id="konfirmasi-ringkas" class="ringkasan"></dl>
+    <div class="dialog-actions">
+      <button type="button" id="btn-kembali" class="btn">Kembali</button>
+      <button type="button" id="btn-konfirmasi" class="btn btn-primary">Konfirmasi</button>
+    </div>
+    <form method="dialog" class="visually-hidden" aria-hidden="true">
+      <input type="hidden" name="dlg-close" value="confirm">
+    </form>
+  </dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
