@@ -54,9 +54,11 @@ Semua langkah ini bisa dilakukan di browser HP. Tidak perlu terminal, wrangler,
 atau build lokal.
 
 ### 1. Push proyek ke GitHub
-- Buat repository GitHub (mis. `setoran-staff`).
-- Push seluruh isi proyek (`public/`, `functions/`, `schema.sql`, `README.md`).
-- Pastikan folder `public` ada di root repo (bukan di dalam folder lain).
+- Repo: `https://github.com/tamvanpr/ainzreport` (branch `main`).
+- Isi aplikasi berada di dalam folder `Ainz/`: `Ainz/public/`,
+  `Ainz/functions/`, `Ainz/schema.sql`, dan `Ainz/README.md`.
+- Saat connect ke Pages nanti, set **Root directory** = `Ainz`
+  dan **Build output directory** = `public`.
 
 ### 2. Buat database D1
 - Buka dashboard Cloudflare → **Storage & Databases** → **D1** → **Create**.
@@ -71,7 +73,8 @@ atau build lokal.
 ### 4. Buat project Pages (connect ke Git)
 - **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → pilih repo.
 - Isi form:
-  - **Production branch**: `main` (atau branch default kamu).
+  - **Production branch**: `main`.
+  - **Root directory**: `Ainz` (karena isi aplikasi ada di folder ini).
   - **Build command**: _biarkan kosong_ (tanpa build step).
   - **Build output directory**: `public`
 - Klik **Deploy site**. Tunggu sampai deploy sukses.
