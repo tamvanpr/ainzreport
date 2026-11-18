@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <main class="page">
+  <main class="page staff-page">
     <header class="header">
       <h1>Setoran Staff</h1>
       <p class="subtitle">Catat setoran kerja tim scanlation</p>
@@ -19,47 +19,91 @@
       <strong>Penting:</strong> Selalu pakai nickname yang sama. Periksa kembali data sebelum menekan Konfirmasi.
     </div>
 
-    <form id="form" aria-labelledby="form-title" autocomplete="off">
-      <h2 id="form-title" class="visually-hidden">Form setoran</h2>
-
-      <div class="field">
-        <label for="nickname">Nickname</label>
-        <select id="nickname" name="nickname" required>
-          <option value="" selected>Pilih nickname…</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="judul">Judul</label>
-        <select id="judul" name="judul" required>
-          <option value="" selected>Pilih judul…</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="chapter">Chapter <span class="hint-inline">(mis. 12.5)</span></label>
-        <input id="chapter" name="chapter" type="text" inputmode="decimal"
-               pattern="^[\d.]+$" maxlength="20" required
-               autocorrect="off" autocapitalize="none" spellcheck="false"
-               placeholder="Contoh: 12 atau 12.5">
-      </div>
-
-      <div class="field">
-        <label for="tugas">Tugas</label>
-        <select id="tugas" name="tugas" required>
-          <option value="" selected>Pilih tugas…</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-primary" id="btn-lanjut">Lanjutkan</button>
-    </form>
-
-    <section class="riwayat-card" id="riwayat-card" hidden>
-      <h2 id="riwayat-heading">Riwayat 20 setoran terakhir</h2>
-      <ul id="riwayat-list"></ul>
-    </section>
-
     <div id="flash" class="flash" role="status" aria-live="polite"></div>
+
+    <div class="staff-layout">
+      <form id="form" class="card" aria-labelledby="form-title" autocomplete="off" novalidate>
+        <h2 id="form-title" class="form-heading">Form setoran</h2>
+
+        <div class="field combo">
+          <label for="nickname">Nickname</label>
+          <input id="nickname" type="text" role="combobox" aria-autocomplete="list"
+                 aria-expanded="false" aria-controls="nickname-list" autocomplete="off"
+                 placeholder="Ketik atau pilih nickname…">
+          <input type="hidden" id="nickname-id">
+          <ul id="nickname-list" class="combo-list" role="listbox" hidden></ul>
+        </div>
+
+        <div class="field combo">
+          <label for="judul">Judul</label>
+          <input id="judul" type="text" role="combobox" aria-autocomplete="list"
+                 aria-expanded="false" aria-controls="judul-list" autocomplete="off"
+                 placeholder="Ketik atau pilih judul…">
+          <input type="hidden" id="judul-id">
+          <ul id="judul-list" class="combo-list" role="listbox" hidden></ul>
+        </div>
+
+        <div class="field">
+          <label for="chapter">Chapter <span class="hint-inline">(mis. 12.5)</span></label>
+          <input id="chapter" name="chapter" type="text" inputmode="decimal"
+                 pattern="^[\d.]+$" maxlength="20"
+                 autocorrect="off" autocapitalize="none" spellcheck="false"
+                 placeholder="Contoh: 12 atau 12.5">
+        </div>
+
+        <div class="field combo">
+          <label for="tugas">Role</label>
+          <input id="tugas" type="text" role="combobox" aria-autocomplete="list"
+                 aria-expanded="false" aria-controls="tugas-list" autocomplete="off"
+                 placeholder="Ketik atau pilih role…">
+          <input type="hidden" id="tugas-id">
+          <ul id="tugas-list" class="combo-list" role="listbox" hidden></ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" id="btn-lanjut">Lanjutkan</button>
+      </form>
+
+      <div class="staff-side">
+        <section class="riwayat-card card" id="riwayat-card" hidden>
+          <h2 id="riwayat-heading">Riwayat 20 setoran terakhir</h2>
+          <ul id="riwayat-list"></ul>
+        </section>
+
+        <details class="card" id="rekap-card">
+          <summary><strong>Lihat rekap bulanan</strong></summary>
+          <p class="hint-inline">Cek hasil setoran kalau ada judul/chapter yang salah tulis.</p>
+
+          <div class="field">
+            <label for="rekap-bulan">Bulan</label>
+            <input id="rekap-bulan" type="month">
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-rekap">Tampilkan rekap</button>
+
+          <div id="rekap-summary-wrap" hidden>
+            <h3 class="subheading">Total semua staff</h3>
+            <div class="table-wrap">
+              <table id="rekap-staff-table">
+                <caption class="visually-hidden">Rekap setoran per staff</caption>
+              </table>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="rekap-staff">Cek detail staff</label>
+            <select id="rekap-staff">
+              <option value="">Pilih staff…</option>
+            </select>
+          </div>
+          <div id="rekap-detail-wrap" hidden>
+            <div class="table-wrap">
+              <table id="rekap-detail-table">
+                <caption class="visually-hidden">Rincian setoran staff</caption>
+              </table>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
   </main>
 
   <dialog id="konfirmasi" aria-labelledby="konfirmasi-title">

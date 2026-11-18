@@ -5,15 +5,12 @@
   // ===== Utilitas =====
   const $ = (sel, root = document) => root.querySelector(sel);
 
-  // Escape HTML untuk mencegah XSS (seluruh output dinamis memakai fungsi ini)
   const escapeHtml = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   }[c]));
 
-  // Trusted Types policy khusus TEMPLATE buatan sendiri. Semua nilai dinamis
-  // sudah melewati escapeHtml() sebelum masuk ke sini. createHTML mengembalikan
-  // template apa adanya — JANGAN di-escape di sini, karena tag <option>/<input>
-  // harus tetap menjadi elemen (bukan teks). Guard di bawah menolak pola berbahaya.
+  // Trusted Types policy khusus template buatan sendiri. Nilai dinamis sudah
+  // melewati escapeHtml() sebelum masuk ke sini; tag asli tetap jadi elemen.
   const htmlPolicy = (typeof trustedTypes !== 'undefined' && trustedTypes && trustedTypes.createPolicy)
     ? trustedTypes.createPolicy('setoran-template', {
         createHTML: (input) => {
@@ -27,7 +24,7 @@
     : null;
   const setHtml = (el, html) => {
     if (htmlPolicy) el.innerHTML = htmlPolicy.createHTML(html);
-    else el.innerHTML = html; // fallback: browser tanpa Trusted Types
+    else el.innerHTML = html;
   };
 
   const api = async (url, options) => {
@@ -48,12 +45,14 @@
     }).format(d);
   };
 
+  const monthNow = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  };
+
   // ===== Elemen =====
   const form = $('#form');
-  const nicknameSel = $('#nickname');
-  const judulSel = $('#judul');
   const chapterInput = $('#chapter');
-  const tugasSel = $('#tugas');
   const dialog = $('#konfirmasi');
   const ringkas = $('#konfirmasi-ringkas');
   const btnKonfirmasi = $('#btn-konfirmasi');
@@ -62,11 +61,16 @@
   const riwayatCard = $('#riwayat-card');
   const riwayatHeading = $('#riwayat-heading');
   const riwayatList = $('#riwayat-list');
+  const rekapBulan = $('#rekap-bulan');
+  const rekapStaffSel = $('#rekap-staff');
+  const rekapSummaryWrap = $('#rekap-summary-wrap');
+  const rekapDetailWrap = $('#rekap-detail-wrap');
 
   let staffList = [];
   let titleList = [];
   let taskList = [];
-  let currentData = null; // data yang akan dikirim setelah Konfirmasi
+  let currentData = null;
+  let onNicknameSelect = () => {};
 
   // ===== Flash =====
   let flashTimer;
@@ -79,63 +83,114 @@
     }
   };
 
-  // ===== Muat data =====
+  // ===== Combobox: bisa diketik + saran dari daftar =====
+  const setupCombo = (inputSel, idSel, listSel, onSelect) => {
+    const input = $(inputSel);
+    const hidden = $(idSel);
+    const list = $(listSel);
+    let items = [];
+    let active = -1;
+
+    const close = () => {
+      list.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+      active = -1;
+    };
+    const paint = (query = '') => {
+      const q = String(query).trim().toLocaleLowerCase('id-ID');
+      const shown = items.filter(i => i.nama.toLocaleLowerCase('id-ID').includes(q)).slice(0, 40);
+      if (!shown.length) {
+        setHtml(list, '<li class="combo-empty" role="presentation">Tidak ada hasil.</li>');
+      } else {
+        setHtml(list, shown.map(o =>
+          `<li role="option" data-id="${o.id}" data-nama="${escapeHtml(o.nama)}" aria-selected="false">` +
+          `<span>${escapeHtml(o.nama)}</span>${o.grup ? `<small>${escapeHtml(o.grup)}</small>` : ''}</li>`
+        ).join(''));
+      }
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      active = -1;
+    };
+    const choose = (id, nama) => {
+      hidden.value = String(id);
+      input.value = nama;
+      close();
+      if (onSelect) onSelect(id);
+    };
+
+    input.addEventListener('focus', () => paint(input.value));
+    input.addEventListener('input', () => { hidden.value = ''; paint(input.value); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { close(); return; }
+      const opts = [...list.querySelectorAll('li[role="option"]')];
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (list.hidden) { paint(input.value); return; }
+        if (!opts.length) return;
+        active = e.key === 'ArrowDown'
+          ? (active + 1) % opts.length
+          : (active - 1 + opts.length) % opts.length;
+        opts.forEach((o, i) => o.classList.toggle('is-active', i === active));
+        opts[active].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter' && !list.hidden && active >= 0 && opts[active]) {
+        e.preventDefault();
+        choose(opts[active].dataset.id, opts[active].dataset.nama);
+      }
+    });
+    // Cegah input blur sebelum klik opsi sempat diproses
+    list.addEventListener('mousedown', (e) => e.preventDefault());
+    list.addEventListener('click', (e) => {
+      const opt = e.target.closest('li[role="option"]');
+      if (opt) choose(opt.dataset.id, opt.dataset.nama);
+    });
+    input.addEventListener('blur', () => {
+      const typed = input.value.trim().toLocaleLowerCase('id-ID');
+      const exact = items.find(i => i.nama.toLocaleLowerCase('id-ID') === typed);
+      if (exact) choose(exact.id, exact.nama);
+      setTimeout(close, 100);
+    });
+
+    return {
+      value: () => hidden.value,
+      setItems(next) { items = next; },
+      setValue(id) {
+        const found = items.find(i => i.id === Number(id));
+        if (found) choose(found.id, found.nama);
+        else { hidden.value = ''; input.value = ''; }
+      },
+      clear() { hidden.value = ''; input.value = ''; close(); },
+    };
+  };
+
+  const nickname = setupCombo('#nickname', '#nickname-id', '#nickname-list', (id) => onNicknameSelect(id));
+  const judul = setupCombo('#judul', '#judul-id', '#judul-list');
+  const tugas = setupCombo('#tugas', '#tugas-id', '#tugas-list');
+
+  // ===== Muat data master =====
   const loadOptions = async () => {
     try {
-      const [staff, titles, tasks] = await Promise.all([
+      const [s, t, k] = await Promise.all([
         api('/api/staff').then(d => d.staff),
         api('/api/titles').then(d => d.titles),
         api('/api/tasks').then(d => d.tasks),
       ]);
-      staffList = staff; titleList = titles; taskList = tasks;
-
-      setHtml(nicknameSel, '<option value="" selected disabled>Pilih nickname…</option>' +
-        staff.map(s => `<option value="${s.id}">${escapeHtml(s.nama)}</option>`).join(''));
-
-      setHtml(judulSel, '<option value="" selected disabled>Pilih judul…</option>' +
-        titles.map(t => `<option value="${t.id}">${escapeHtml(t.nama)}</option>`).join(''));
-
-      renderTaskOptions();
+      staffList = s; titleList = t; taskList = k;
+      nickname.setItems(s); judul.setItems(t); tugas.setItems(k);
+      setHtml(rekapStaffSel, '<option value="">Pilih staff…</option>' +
+        s.map(x => `<option value="${x.id}">${escapeHtml(x.nama)}</option>`).join(''));
     } catch (e) {
       showFlash(e.message, 'error');
     }
   };
 
-  // Tugas dipilih satu dari dropdown, dikelompokkan menurut `grup` (TL dulu,
-  // lalu tugas tanpa grup seperti TS/Solo) sesuai urutan dari database.
-  const renderTaskOptions = () => {
-    // Endpoint /api/tasks sudah hanya mengembalikan tugas aktif (WHERE aktif = 1)
-    // dan tidak menyertakan field `aktif`, jadi jangan difilter ulang di sini.
-    const active = taskList;
-    if (active.length === 0) {
-      setHtml(tugasSel, '<option value="" selected>Belum ada tugas. Hubungi admin.</option>');
-      return;
-    }
-    const groups = [];
-    active.forEach((t) => {
-      const name = t.grup || '';
-      let g = groups.find(x => x.name === name);
-      if (!g) { g = { name, items: [] }; groups.push(g); }
-      g.items.push(t);
-    });
-    let html = '<option value="" selected>Pilih tugas…</option>';
-    groups.forEach((g) => {
-      const options = g.items.map(t => `<option value="${t.id}">${escapeHtml(t.nama)}</option>`).join('');
-      html += g.name
-        ? `<optgroup label="${escapeHtml(g.name)}">${options}</optgroup>`
-        : options;
-    });
-    setHtml(tugasSel, html);
-  };
-
-  // ===== Riwayat =====
+  // ===== Riwayat staff =====
   const loadHistory = async (staffId) => {
     if (!staffId) { riwayatCard.hidden = true; return; }
     try {
       const d = await api(`/api/staff/${staffId}/riwayat`);
       const staff = staffList.find(s => s.id === Number(staffId));
       riwayatHeading.textContent = `Riwayat 20 setoran terakhir — ${staff ? staff.nama : ''}`;
-      if (d.items.length === 0) {
+      if (!d.items.length) {
         setHtml(riwayatList, '<li class="empty-note">Belum ada setoran.</li>');
       } else {
         setHtml(riwayatList, d.items.map(it => `
@@ -149,28 +204,73 @@
       showFlash(e.message, 'error');
     }
   };
+  onNicknameSelect = (id) => loadHistory(id);
 
-  nicknameSel.addEventListener('change', () => loadHistory(nicknameSel.value));
+  // ===== Rekap publik =====
+  const loadRekapSummary = async () => {
+    const bulan = rekapBulan.value || monthNow();
+    try {
+      const d = await api('/api/rekap?bulan=' + encodeURIComponent(bulan));
+      let html = '<thead><tr><th>Staff</th>';
+      d.roles.forEach(r => { html += `<th>${escapeHtml(r.nama)}</th>`; });
+      html += '<th>Total</th></tr></thead><tbody>';
+      if (!d.rows.length) {
+        html += `<tr><td colspan="${d.roles.length + 2}" class="empty-note">Belum ada setoran bulan ini.</td></tr>`;
+      }
+      d.rows.forEach(r => {
+        html += `<tr><td>${escapeHtml(r.staff_name)}</td>`;
+        d.roles.forEach(role => { html += `<td>${r.counts[role.id] || 0}</td>`; });
+        html += `<td class="row-total">${r.total}</td></tr>`;
+      });
+      html += '</tbody>';
+      setHtml($('#rekap-staff-table'), html);
+      rekapSummaryWrap.hidden = false;
+    } catch (e) { showFlash(e.message, 'error'); }
+  };
+
+  const loadRekapDetail = async (staffId) => {
+    if (!staffId) { rekapDetailWrap.hidden = true; return; }
+    const bulan = rekapBulan.value || monthNow();
+    try {
+      const d = await api(`/api/rekap/detail?staff_id=${staffId}&bulan=${encodeURIComponent(bulan)}`);
+      let html = `<thead><tr><th>Judul</th><th>Chapter</th><th>Role</th><th>Jml</th><th>Terakhir</th></tr></thead><tbody>`;
+      if (!d.items.length) {
+        html += '<tr><td colspan="5" class="empty-note">Belum ada setoran bulan ini.</td></tr>';
+      }
+      d.items.forEach(it => {
+        html += `<tr><td>${escapeHtml(it.judul)}</td><td>${escapeHtml(it.chapter)}</td>` +
+          `<td>${escapeHtml(it.role_name)}</td><td>${it.n}</td>` +
+          `<td>${escapeHtml(formatDate(it.last_seen))}</td></tr>`;
+      });
+      html += '</tbody>';
+      setHtml($('#rekap-detail-table'), html);
+      rekapDetailWrap.hidden = false;
+    } catch (e) { showFlash(e.message, 'error'); }
+  };
+
+  $('#btn-rekap').addEventListener('click', () => {
+    loadRekapSummary();
+    loadRekapDetail(rekapStaffSel.value);
+  });
+  rekapStaffSel.addEventListener('change', () => loadRekapDetail(rekapStaffSel.value));
 
   // ===== Alur form → konfirmasi =====
-  const collectPayload = () => {
-    return {
-      staff_id: Number(nicknameSel.value),
-      title_id: Number(judulSel.value),
-      chapter: chapterInput.value.trim(),
-      task_ids: [Number(tugasSel.value)],
-    };
-  };
+  const collectPayload = () => ({
+    staff_id: Number(nickname.value()),
+    title_id: Number(judul.value()),
+    chapter: chapterInput.value.trim(),
+    task_ids: [Number(tugas.value())],
+  });
 
   const buildRingkasan = (data) => {
     const staff = staffList.find(s => s.id === data.staff_id);
     const title = titleList.find(t => t.id === data.title_id);
-    const task = taskList.find(t => t.id === data.task_ids[0]);
+    const role = taskList.find(t => t.id === data.task_ids[0]);
     const rows = [
       ['Nickname', staff ? staff.nama : ''],
       ['Judul', title ? title.nama : ''],
       ['Chapter', data.chapter],
-      ['Tugas', task ? task.nama : ''],
+      ['Role', role ? role.nama : ''],
     ];
     setHtml(ringkas, rows.map(([k, v]) =>
       `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join(''));
@@ -178,12 +278,8 @@
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!nicknameSel.value || !judulSel.value || !chapterInput.value.trim()) {
-      showFlash('Lengkapi nickname, judul, dan chapter terlebih dahulu.', 'error');
-      return;
-    }
-    if (!tugasSel.value) {
-      showFlash('Pilih tugas terlebih dahulu.', 'error');
+    if (!nickname.value() || !judul.value() || !chapterInput.value.trim() || !tugas.value()) {
+      showFlash('Lengkapi nickname, judul, chapter, dan role. Pilih dari daftar yang tersedia.', 'error');
       return;
     }
     currentData = collectPayload();
@@ -194,26 +290,19 @@
   const openDialog = () => { if (!dialog.open) dialog.showModal(); };
   const closeDialog = () => { if (dialog.open) dialog.close(); };
 
-  // Tutup tanpa memilih: batalkan pengiriman
-  dialog.addEventListener('cancel', (e) => {
-    e.preventDefault();
-    closeDialog();
-  });
+  dialog.addEventListener('cancel', (e) => { e.preventDefault(); closeDialog(); });
 
   const triggerDialogClose = (value) => {
-    // Letuskan close dengan returnValue yang sesuai tombol yang ditekan
     dialog.returnValue = value;
     const closeForm = dialog.querySelector('form[method="dialog"]');
     if (closeForm) closeForm.requestSubmit();
     else closeDialog();
   };
 
-  // Listener close: baca returnValue SEBELUM mereset (nilai stale bisa bocor antar dialog),
-  // lalu fokus kembali ke form bila pengguna tidak menekan Konfirmasi.
   dialog.addEventListener('close', () => {
     const chosen = dialog.returnValue;
     dialog.returnValue = '';
-    if (chosen !== 'confirm') nicknameSel.focus();
+    if (chosen !== 'confirm') $('#nickname').focus();
   });
 
   btnKembali.addEventListener('click', () => triggerDialogClose('kembali'));
@@ -227,23 +316,23 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(currentData),
       });
-      // Kosongkan form kecuali nickname (sesuai spesifikasi)
-      judulSel.value = '';
+      // Kosongkan form kecuali nickname
+      judul.clear();
       chapterInput.value = '';
-      tugasSel.value = '';
+      tugas.clear();
       currentData = null;
 
       const newCount = res.saved || 0;
       const skipped = res.skipped || [];
       let msg = `Berhasil menyimpan ${newCount} setoran.`;
       if (skipped.length > 0) {
-        const skippedNames = taskList.filter(t => skipped.includes(t.id)).map(t => t.nama).join(', ');
-        msg += ` Sudah tercatat sebelumnya (${skippedNames}).`;
+        const names = taskList.filter(t => skipped.includes(t.id)).map(t => t.nama).join(', ');
+        msg += ` Sudah tercatat sebelumnya (${names}).`;
       }
       showFlash(msg, 'success');
       triggerDialogClose('confirm');
-      const staffId = nicknameSel.value;
-      loadHistory(staffId);
+      loadHistory(nickname.value());
+      if (!rekapSummaryWrap.hidden) { loadRekapSummary(); loadRekapDetail(rekapStaffSel.value); }
     } catch (e) {
       showFlash(e.message, 'error');
       openDialog();
@@ -253,5 +342,6 @@
   });
 
   // ===== Init =====
+  rekapBulan.value = monthNow();
   loadOptions();
 })();

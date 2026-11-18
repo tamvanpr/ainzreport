@@ -6,13 +6,18 @@ pemilik proyek utamanya memakai HP.
 
 ## Fitur
 
-- **Halaman staff (`/`)** — tanpa login: pilih nickname, judul, chapter (mendukung
-  desimal seperti `12.5`), lalu pilih **satu tugas** dari dropdown (dikelompokkan
-  per grup, mis. TL). Ada layar konfirmasi, riwayat 20 setoran terakhir, dan cegah
+- **Halaman staff (`/`)** — tanpa login: nickname, judul, dan role bisa **diketik**
+  (combobox dengan saran otomatis, tetap urut abjad), chapter mendukung desimal
+  seperti `12.5`. Ada layar konfirmasi, riwayat 20 setoran terakhir, dan cegah
   duplikat. Satu submit = satu setoran.
-- **Halaman admin (`/admin`)** — login terpisah. Kelola staff/judul/tugas, kelola
+- **Rekap untuk staff** — di halaman `/` ada panel **Lihat rekap bulanan**: total
+  per staff per role, plus rincian per staff (judul, chapter, role, jumlah, waktu).
+  Berguna untuk mengecek kalau ada judul/chapter yang salah tulis.
+- **Halaman admin (`/admin`)** — login terpisah. Kelola staff/judul/**role**, kelola
   daftar setoran (edit & hapus), rekap bulanan, rekap per staff, dan ekspor CSV
   (UTF-8 dengan BOM, rapi di Excel/Sheets).
+- Tampilan **minimalis** dan responsif: satu kolom di HP, dua kolom di desktop.
+  Di UI, "tugas" disebut **role** (mis. ETL/KTL/CTL/JPL/TS/Solo).
 - **Stack**: Cloudflare Pages + Pages Functions + D1 (SQLite), frontend
   HTML/CSS/JS vanilla tanpa build step. Muat di tier gratis Cloudflare
   (staff < 20, judul < 50).
@@ -34,6 +39,7 @@ pemilik proyek utamanya memakai HP.
 │   └── api/
 │       ├── staff.js, titles.js, tasks.js       # Daftar master aktif
 │       ├── staff/[id]/riwayat.js               # Riwayat 20 terakhir
+│       ├── rekap.js, rekap/detail.js           # Rekap publik untuk staff
 │       ├── submissions.js                       # POST setoran (publik)
 │       └── admin/
 │           ├── login.js, logout.js, me.js       # Autentikasi
@@ -124,10 +130,11 @@ atau build lokal.
   `INSERT OR IGNORE`, jadi aman dijalankan ulang.
 - **Lupa redeploy setelah mengubah variabel/binding**: perubahan `ADMIN_PASSWORD`,
   `SESSION_SECRET`, atau binding D1 **wajib** di-redeploy agar aktif.
-- **Dropdown tugas di halaman staff kosong**: buka `/api/tasks` di browser.
-  Seharusnya muncul array berisi ETL/KTL/CTL/JPL/TS/Solo. Kalau array-nya kosong,
-  berarti `schema.sql` belum dijalankan (seed tugas belum masuk) atau semua tugas
-  dinonaktifkan dari `/admin`. Endpoint ini sudah hanya mengembalikan tugas aktif.
+- **Saran nickname/judul/role tidak muncul saat diketik**: buka `/api/staff`,
+  `/api/titles`, `/api/tasks` di browser. Seharusnya berisi data aktif
+  (termasuk ETL/KTL/CTL/JPL/TS/Solo). Kalau kosong, berarti `schema.sql` belum
+  dijalankan atau data belum ditambahkan/dinonaktifkan dari `/admin`. Endpoint
+  publik sudah hanya mengembalikan data aktif.
 - **`/admin` minta login terus-terusan**: cek `SESSION_SECRET` terisi dan
   redeploy. Jika baru login, pastikan cookie tidak diblokir (pakai situs desktop).
 

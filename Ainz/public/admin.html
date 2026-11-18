@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <main class="page">
+  <main class="page page-wide">
     <header class="header">
       <h1>Admin</h1>
       <p class="subtitle">Kelola data dan rekap setoran</p>
@@ -60,7 +60,7 @@
                      autocorrect="off" autocapitalize="none" spellcheck="false" required>
             </div>
             <div class="field">
-              <label for="s-task">Tugas</label>
+              <label for="s-task">Role</label>
               <select id="s-task" name="task_type_id" required></select>
             </div>
             <button type="submit" class="btn btn-primary">Simpan setoran</button>
@@ -81,7 +81,7 @@
             <select id="f-title"><option value="">Semua judul</option></select>
           </div>
           <div class="field">
-            <label for="f-task">Tugas</label>
+            <label for="f-task">Role</label>
             <select id="f-task"><option value="">Semua tugas</option></select>
           </div>
           <div class="filter-actions">
@@ -182,15 +182,15 @@
         </div>
 
         <div class="card">
-          <h2>Tugas / PJ</h2>
+          <h2>Role / PJ</h2>
           <form id="form-task">
             <div class="task-add-row">
-              <input id="task-nama" type="text" maxlength="30" required autocapitalize="none" placeholder="Nama tugas (mis. TL)">
+              <input id="task-nama" type="text" maxlength="30" required autocapitalize="none" placeholder="Nama role (mis. TL)">
               <input id="task-grup" type="text" maxlength="20" autocapitalize="none" placeholder="Grup (mis. TL), boleh kosong">
             </div>
             <div class="task-add-row">
               <input id="task-urutan" type="number" min="0" max="99" placeholder="Urutan (opsional)" inputmode="numeric">
-              <button type="submit" class="btn btn-primary">Tambah tugas</button>
+              <button type="submit" class="btn btn-primary">Tambah role</button>
             </div>
           </form>
           <div class="table-wrap">

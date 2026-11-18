@@ -124,7 +124,7 @@
       ]);
       fillSelectKeep($('#s-staff'), s.staff, 'Pilih staff', '');
       fillSelectKeep($('#s-title'), t.titles, 'Pilih judul', '');
-      fillSelectKeep($('#s-task'), k.tasks, 'Pilih tugas', '');
+      fillSelectKeep($('#s-task'), k.tasks, 'Pilih role', '');
     } catch { /* ditangani di api() */ }
   };
 
@@ -154,7 +154,7 @@
   const refreshSetoranFilters = () => {
     fillSelect($('#f-staff'), staff, 'Semua staff', true);
     fillSelect($('#f-title'), titles, 'Semua judul', true);
-    fillSelectKeep($('#f-task'), tasks, 'Semua tugas', '');
+    fillSelectKeep($('#f-task'), tasks, 'Semua role', '');
   };
 
   const refreshRecapControls = () => {
@@ -266,7 +266,7 @@
       fillSelectKeep($('#es-staff'), staff, 'Pilih staff', String(d.staff_id));
       fillSelectKeep($('#es-title'), titles, 'Pilih judul', String(d.title_id));
       $('#es-chapter').value = d.chapter;
-      fillSelectKeep($('#es-task'), tasks, 'Pilih tugas', String(d.task_type_id));
+      fillSelectKeep($('#es-task'), tasks, 'Pilih role', String(d.task_type_id));
       $('#es-id').value = id;
       editDialog.showModal();
     } catch (e) { showFlash(e.message, 'error'); }
@@ -368,7 +368,7 @@
     if (!d) { wrap.hidden = true; return; }
     const s = staff.find(x => x.id === staffId);
     let html = `<thead><tr><th colspan="4">Rincian ${escapeHtml(s ? s.nama : 'staff')} · bulan ${escapeHtml(rekapPerStaff.bulan)}</th></tr>
-      <tr><th>Judul</th><th>Chapter</th><th>Tugas</th><th>Terakhir tercatat</th></tr></thead><tbody>`;
+      <tr><th>Judul</th><th>Chapter</th><th>Role</th><th>Terakhir tercatat</th></tr></thead><tbody>`;
     if (!d.items.length) html += '<tr><td colspan="4" class="empty-note">Belum ada setoran.</td></tr>';
     d.items.forEach(it => {
       html += `<tr><td>${escapeHtml(it.title_name)}</td><td>${escapeHtml(it.chapter)}</td><td>${escapeHtml(it.task_name)}</td><td>${escapeHtml(formatDate(it.last_seen))}</td></tr>`;
@@ -523,7 +523,7 @@
       await post('/api/admin/tasks', { nama, grup, urutan });
       e.target.reset();
       await loadMasters(); renderTasks(); refreshSetoranFilters();
-      showFlash('Tugas ditambahkan.', 'success');
+      showFlash('Role ditambahkan.', 'success');
     } catch (err) { showFlash(err.message, 'error'); }
   });
 
@@ -538,14 +538,14 @@
       try {
         await put(`/api/admin/tasks/${id}`, { nama, grup });
         await loadMasters(); renderTasks(); refreshSetoranFilters();
-        showFlash('Tugas diperbarui.', 'success');
+        showFlash('Role diperbarui.', 'success');
       } catch (err) { showFlash(err.message, 'error'); }
     }
     if (togBtn && id) {
       try {
         await post(`/api/admin/tasks/${id}/toggle`);
         await loadMasters(); renderTasks(); refreshSetoranFilters();
-        showFlash('Status tugas diperbarui.', 'success');
+        showFlash('Status role diperbarui.', 'success');
       } catch (err) { showFlash(err.message, 'error'); }
     }
   });

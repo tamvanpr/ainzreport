@@ -72,6 +72,7 @@ export function monthRangeUtc(bulan) {
   if (!ym) return null;
   const y = Number(ym[1]);
   const m = Number(ym[2]);
+  if (m < 1 || m > 12) return null; // cegah Date.UTC menggulung (mis. 2026-13)
   // Batas bulan dalam JKT: (y,m,1) T00:00 +07:00  ->  UTC = T00:00 - 7 jam
   // Mulai = hari-1 bulan ke-m, Selesai = hari-1 bulan ke-(m+1)
   const startJkt = new Date(Date.UTC(y, m - 1, 1));
