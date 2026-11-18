@@ -94,7 +94,17 @@
     const close = () => {
       list.hidden = true;
       input.setAttribute('aria-expanded', 'false');
+      input.removeAttribute('aria-activedescendant');
       active = -1;
+    };
+    const setActive = (opts, i) => {
+      active = i;
+      opts.forEach((o, n) => {
+        o.classList.toggle('is-active', n === i);
+        o.setAttribute('aria-selected', n === i ? 'true' : 'false');
+      });
+      if (i >= 0 && opts[i]) input.setAttribute('aria-activedescendant', opts[i].id);
+      else input.removeAttribute('aria-activedescendant');
     };
     const paint = (query = '') => {
       const q = String(query).trim().toLocaleLowerCase('id-ID');
@@ -102,13 +112,15 @@
       if (!shown.length) {
         setHtml(list, '<li class="combo-empty" role="presentation">Tidak ada hasil.</li>');
       } else {
-        setHtml(list, shown.map(o =>
-          `<li role="option" data-id="${o.id}" data-nama="${escapeHtml(o.nama)}" aria-selected="false">` +
+        setHtml(list, shown.map((o, idx) =>
+          `<li id="${listSel.slice(1)}-opt-${idx}" role="option" data-id="${o.id}" ` +
+          `data-nama="${escapeHtml(o.nama)}" aria-selected="false">` +
           `<span>${escapeHtml(o.nama)}</span>${o.grup ? `<small>${escapeHtml(o.grup)}</small>` : ''}</li>`
         ).join(''));
       }
       list.hidden = false;
       input.setAttribute('aria-expanded', 'true');
+      input.removeAttribute('aria-activedescendant');
       active = -1;
     };
     const choose = (id, nama) => {
@@ -127,11 +139,11 @@
         e.preventDefault();
         if (list.hidden) { paint(input.value); return; }
         if (!opts.length) return;
-        active = e.key === 'ArrowDown'
+        const next = e.key === 'ArrowDown'
           ? (active + 1) % opts.length
           : (active - 1 + opts.length) % opts.length;
-        opts.forEach((o, i) => o.classList.toggle('is-active', i === active));
-        opts[active].scrollIntoView({ block: 'nearest' });
+        setActive(opts, next);
+        opts[next].scrollIntoView({ block: 'nearest' });
       } else if (e.key === 'Enter' && !list.hidden && active >= 0 && opts[active]) {
         e.preventDefault();
         choose(opts[active].dataset.id, opts[active].dataset.nama);
