@@ -47,14 +47,15 @@ CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions (created_at);
 CREATE INDEX IF NOT EXISTS idx_submissions_staff_title ON submissions (staff_id, title_id);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_key ON rate_limits (key);
 
-INSERT INTO task_types (nama, grup, urutan) VALUES ('ETL', 'TL', 1);
+-- OR IGNORE membuat schema aman dijalankan ulang (tidak duplikat tugas)
+INSERT OR IGNORE INTO task_types (nama, grup, urutan) VALUES ('ETL', 'TL', 1);
 
-INSERT INTO task_types (nama, grup, urutan) VALUES ('KTL', 'TL', 2);
+INSERT OR IGNORE INTO task_types (nama, grup, urutan) VALUES ('KTL', 'TL', 2);
 
-INSERT INTO task_types (nama, grup, urutan) VALUES ('CTL', 'TL', 3);
+INSERT OR IGNORE INTO task_types (nama, grup, urutan) VALUES ('CTL', 'TL', 3);
 
-INSERT INTO task_types (nama, grup, urutan) VALUES ('JPL', 'TL', 4);
+INSERT OR IGNORE INTO task_types (nama, grup, urutan) VALUES ('JPL', 'TL', 4);
 
-INSERT INTO task_types (nama, grup, urutan) VALUES ('TS', NULL, 5);
+INSERT OR IGNORE INTO task_types (nama, grup, urutan) VALUES ('TS', NULL, 5);
 
-INSERT INTO task_types (nama, grup, urutan) VALUES ('Solo', NULL, 6);
+INSERT OR IGNORE INTO task_types (nama, grup, urutan) VALUES ('Solo', NULL, 6);

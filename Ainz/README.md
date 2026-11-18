@@ -116,9 +116,12 @@ atau build lokal.
 - **Binding `DB` tidak terbaca / error 500 "Database belum terhubung"**:
   Pastikan binding bernama persis `DB`, dan kamu sudah **redeploy** setelah
   menambahnya. Coba buka endpoint `/api/staff` untuk mendiagnosis.
-- **Schema belum dijalankan**: jika tabel belum ada, semua query gagal.
-  Pastikan semua statement di `schema.sql` sudah sukses di D1 Console
-  (cek tabel `staff`, `titles`, `task_types`, `submissions`, `rate_limits` ada).
+- **Schema belum dijalankan / "No SQL statements detected"**: jangan tempel seluruh
+  isi `schema.sql` dalam **satu baris**. Baris yang diawali `--` adalah komentar;
+  bila digabung jadi satu baris, semua statement ikut jadi komentar. Tempel
+  **per statement** (atau salin versi tanpa komentar). Cek tabel `staff`, `titles`,
+  `task_types`, `submissions`, `rate_limits` sudah ada. Seed memakai
+  `INSERT OR IGNORE`, jadi aman dijalankan ulang.
 - **Lupa redeploy setelah mengubah variabel/binding**: perubahan `ADMIN_PASSWORD`,
   `SESSION_SECRET`, atau binding D1 **wajib** di-redeploy agar aktif.
 - **Dropdown tugas di halaman staff kosong**: buka `/api/tasks` di browser.
